@@ -1,4 +1,5 @@
 from imutils.video import VideoStream
+from imutils.video import FPS
 import face_recognition
 import argparse
 import imutils
@@ -8,37 +9,47 @@ import cv2
 
 # Create an argument parser to parse the command line arguments
 argument_parser = argparse.ArgumentParser()
+argument_parser.add_argument("--cascade", required=True)
 argument_parser.add_argument("--encodings", required=True)
-argument_parser.add_argument("--output", type=str)
-argument_parser.add_argument("--display", type=int, default=1)
 arguments = vars(argument_parser.parse_args())
 # We will be using the hog detection method
 
 print("loading encodings...")
 # Retrieve the names and encodings from the pickle file by opening it in read+binary
 data = pickle.loads(open(arguments["encodings"], "rb").read())
+#Create a detector using Haar cascades
+detector = cv2.CascadeClassifier(arguments["cascade"])
 
 # Start the video stream
 print("Starting video...")
-# src=0 uses the device's default camera
-video_stream = VideoStream(src=0).start()
+video_stream = VideoStream(usePiCamera=True).start()
+
 # Sleep the program for 2 seconds while the camera starts
 time.sleep(2.0)
+
+# Start counting frames per second
+fps = FPS().start()
 
 # Loop through video_stream frames
 while True:
     # Retrieve the current frame
     frame = video_stream.read()
+    
+    # Resize the frame to make processing faster
+    frame = imutils.resize(frame, width=500)
 
-    # Convert the frame from BGR to RBG
+    # Convert the frame to grayscale for face detection using Haar cascades
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # Convert the frame to RBG for face recognition
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    # Resize the frame
-    rgb_frame = imutils.resize(frame, width=750)
-    # Get the ratio of the frame and the shrinken rgb_frame 
-    ratio = frame.shape[1] / float(rgb_frame.shape[1])
 
-    # Detect faces using bounding boxes
-    boxes = face_recognition.face_locations(rgb_frame, model="hog")
+    # Detect faces in the grayscale image
+    rectangles = detector.detectMultiScale(gray_frame, scaleFactor=1.1, minNeighbors=5, minSize=(30,30))
+
+    # Change order of bounding box coordinates from x,y,w,h to top, right, bottom, left
+    boxes = [(y, x+w, y+h, x) for (x,y,w,h) in rectangles]
+
     # Encode the detected faces
     encodings = face_recognition.face_encodings(rgb_frame, boxes)
 
@@ -66,7 +77,7 @@ while True:
 
             # Determine which person got the most upvotes and ensure that it has atleast 3 votes
             name = max(votes, key=votes.get)
-            if(votes[name] < 11):
+            if(votes[name] < 6):
                 name = "Unknown"
 
             # Add the name to the list of names to add to the frame
@@ -74,13 +85,7 @@ while True:
 
     # Loop through the faces in the frame, which will be associated with the correct name
     for ((top, right, bottom, left), name) in zip(boxes, recognized_names):
-        # rescale the face coordinates
-        top = int(top * ratio)
-        right = int(right * ratio)
-        bottom = int(bottom * ratio)
-        left = int(left * ratio)
-
-        # draw the predicted face name on the image
+       # Draw the predicted face name on the image
         cv2.rectangle(frame, (left, top), (right, bottom),(255, 0, 0), 2)
         if(top - 15 < 15):
             y = top - 15
@@ -90,14 +95,17 @@ while True:
         cv2.putText(frame, name, (left, top-15), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
 
     # Determine if the user wants to show the video
-    if arguments["display"] > 0:
-        cv2.imshow("Frame", frame)
-        key = cv2.waitKey(1) & 0xFF
+    cv2.imshow("Frame", frame)
+    key = cv2.waitKey(1) & 0xFF
 
-        # if the `q` key was pressed, break from the loop
-        if key == ord("q"):
-            break
+    # if the `q` key was pressed, break from the loop
+    if key == ord("q"):
+        break
+    
+    # Update the FPS counter
+    fps.update()
 
+fps.stop()
 cv2.destroyAllWindows()
 # Stop the video stream
 video_stream.stop()
