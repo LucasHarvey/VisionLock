@@ -16,7 +16,7 @@ arguments = vars(argument_parser.parse_args())
 
 print("loading encodings...")
 # Retrieve the names and encodings from the pickle file by opening it in read+binary
-data = pickle.loads(open(arguments["encodings"], "rb").read())
+data = pickle.loads(open(arguments["encodings"], "rb").read(), encoding='latin1')
 #Create a detector using Haar cascades
 detector = cv2.CascadeClassifier(arguments["cascade"])
 
