@@ -6,6 +6,7 @@ import imutils
 import pickle
 import time
 import cv2
+import motor
 
 # Create an argument parser to parse the command line arguments
 argument_parser = argparse.ArgumentParser()
@@ -16,7 +17,7 @@ arguments = vars(argument_parser.parse_args())
 
 print("loading encodings...")
 # Retrieve the names and encodings from the pickle file by opening it in read+binary
-data = pickle.loads(open(arguments["encodings"], "rb").read())
+data = pickle.loads(open(arguments["encodings"], "rb").read(), encoding='latin1')
 #Create a detector using Haar cascades
 detector = cv2.CascadeClassifier(arguments["cascade"])
 
@@ -80,6 +81,10 @@ while True:
             if(votes[name] < 6):
                 name = "Unknown"
 
+            if(name == "lucas_harvey"):
+                motor.unlock()
+            if(name == "rushi_gandhi"):
+                motor.lock()
             # Add the name to the list of names to add to the frame
             recognized_names.append(name)
 

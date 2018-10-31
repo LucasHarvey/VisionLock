@@ -2,26 +2,34 @@
 import RPi.GPIO as GPIO
 import time
 
-# initialize the signal pin
-signal_pin = 5
+def unlock():
 
-# initialize outputs
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(7, GPIO.out)
+    # initialize outputs
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(7, GPIO.OUT)
 
-# initialize the motor
-motor = GPIO.PWM(signal_pin, 50)
-motor.start(7.5)
+    motor = GPIO.PWM(7,50)
+    motor.start(7.5)
 
-# try to rotate the servo to its neutral position
-try:
-    while True:
-        GPIO.output(7, 1)
-        time.sleep(0.0015)
-        GPIO.output(7, 0)
-        time.sleep(2)
-
-# stop after a keyboard interrupt
-except KeyboardInterrupt:
-    p.stop()
+    motor.ChangeDutyCycle(2.5)
+    time.sleep(2)
+    motor.stop()
     GPIO.cleanup()
+    return
+
+def lock():
+
+    # initialize outputs
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(7, GPIO.OUT)
+
+    motor = GPIO.PWM(7,50)
+    motor.start(2.5)
+
+    motor.ChangeDutyCycle(7.5)
+    time.sleep(2)
+    motor.stop()
+    GPIO.cleanup()
+    return
+
+
