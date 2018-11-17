@@ -84,14 +84,14 @@ while True:
             
             engine = pyttsx3.init()
             
-            if(name == "Unknown")
+            if(name == "Unknown"):
                 engine.say("ACCESS DENIED!")
                 engine.runAndWait()
             else:
                 engine.say("Welcome home " + name)
                 engine.runAndWait()
                 motor.unlock()
-                sleep(15)
+                time.sleep(5)
                 motor.lock()
             # Add the name to the list of names to add to the frame
             recognized_names.append(name)
