@@ -7,6 +7,7 @@ import pickle
 import time
 import cv2
 import motor
+import pyttsx3
 
 # Create an argument parser to parse the command line arguments
 argument_parser = argparse.ArgumentParser()
@@ -80,10 +81,17 @@ while True:
             name = max(votes, key=votes.get)
             if(votes[name] < 6):
                 name = "Unknown"
-
-            if(name == "lucas_harvey"):
+            
+            engine = pyttsx3.init()
+            
+            if(name == "Unknown")
+                engine.say("ACCESS DENIED!")
+                engine.runAndWait()
+            else:
+                engine.say("Welcome home " + name)
+                engine.runAndWait()
                 motor.unlock()
-            if(name == "rushi_gandhi"):
+                sleep(15)
                 motor.lock()
             # Add the name to the list of names to add to the frame
             recognized_names.append(name)
