@@ -1,5 +1,6 @@
 import pyttsx
 
+input = raw_input()
 engine = pyttsx.init()
-engine.say("I love Computer Science!")
-engine.runAndWait()
+output = engine.say(input)
+engine.runAndWait()﻿
