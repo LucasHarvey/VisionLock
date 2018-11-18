@@ -9,9 +9,9 @@ def unlock():
     GPIO.setup(7, GPIO.OUT)
 
     motor = GPIO.PWM(7,50)
-    motor.start(7.5)
+    motor.start(5)
 
-    motor.ChangeDutyCycle(2.5)
+    motor.ChangeDutyCycle(7.5)
     time.sleep(2)
     motor.stop()
     GPIO.cleanup()
@@ -24,9 +24,9 @@ def lock():
     GPIO.setup(7, GPIO.OUT)
 
     motor = GPIO.PWM(7,50)
-    motor.start(2.5)
+    motor.start(7.5)
 
-    motor.ChangeDutyCycle(7.5)
+    motor.ChangeDutyCycle(5)
     time.sleep(2)
     motor.stop()
     GPIO.cleanup()
